@@ -1,0 +1,31 @@
+# ======================================================
+# CONFIGURACION DE SEGURIDAD Y REDIRECCION PROFESIONAL
+# ======================================================
+
+# 1. BLOQUEAR LISTADO DE DIRECTORIOS
+# Evita que se vean archivos si no hay un index.php
+Options -Indexes
+
+# 2. CONFIGURACION DEL MOTOR DE REESCRITURA
+RewriteEngine On
+
+# 3. FORZAR HTTPS (SEGURIDAD SSL) - DESHABILITADO EN LOCAL
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 4. REDIRECCION DE ERRORES (ELIMINAR PAGINAS 404)
+# Cualquier cosa que NO exista, mandala al index.php de la raiz
+# para que lo mande directamente al Login.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]
+
+# 5. PROTECCION DE ARCHIVOS SENSIBLES
+# Bloquea el acceso a configuracion y logs desde fuera
+<FilesMatch "^\.htaccess|config\.php|php_error\.log">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# 6. CONFIGURACION DE CHARSET
+AddDefaultCharset UTF-8

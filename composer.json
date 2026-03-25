@@ -1,0 +1,20 @@
+{
+    "name": "asistencia/sistem",
+    "description": "programacion/sistem_job",
+    
+    "require": {
+        "phpoffice/phpspreadsheet": "^5.4",
+        "dompdf/dompdf": "2.0",
+        "phpmailer/phpmailer": "^6.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Asistencia\\Sistem\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "omar"
+        }
+    ]
+}

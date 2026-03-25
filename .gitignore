@@ -1,0 +1,7 @@
+php_error.log
+sesiones_temp/
+tmp/
+.vscode/
+.idea/
+*.php.bak
+# sistemag_bdsisintegrado.sql (Incluido en el backup)

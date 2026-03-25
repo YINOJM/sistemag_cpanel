@@ -1,0 +1,631 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body{
+  font-family: 'Nunito', sans-serif;
+  background: rgb(217, 226, 236);
+}
+
+h1{
+  text-align: center;
+  padding: 20px;
+  font-size: 40px;
+  color: rgb(56, 56, 56);
+}
+
+#fecha{
+  text-align: center;
+  color: rgb(148, 148, 148);
+  font-weight: normal;
+  font-size: 30px;
+}
+
+.container{
+  width: 700px;
+  background-color: white;
+  padding: 20px;
+  margin: auto;
+  margin-top: 20px;
+}
+
+.acceso{ color: rgb(67, 147, 238); }
+
+.dni{
+  text-align: center;
+  font-size: 25px;
+  margin-bottom: 20px;
+}
+
+input{
+  width: 100%;
+  padding: 30px;
+  outline: none;
+}
+
+.botones{ display: flex; margin-top: 20px; }
+
+.entrada{
+  background: rgb(0, 144, 255);
+  width: 100%;
+  padding: 15px 25px;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+}
+
+.salida{
+  background: rgb(204, 31, 31);
+  width: 100%;
+  padding: 15px 25px;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+}
+
+/* =========================================================
+   PALETA DE COLORES - Estilo Institucional (tipo SIAF)
+   ========================================================= */
+:root{
+  /* Marca principal */
+  --brand-900:#005f73;   /* azul muy oscuro */
+  --brand-800:#006f87;   /* hover oscuro */
+  --brand-700:#007799;   /* base oscuro */
+  --brand-600:#0088aa;   /* principal institucional */
+  --brand-500:#00aacc;   /* más claro */
+  --brand-400:#33bbd6;   /* acento/hover suave */
+  --brand-200:#b3eaf2;   /* fondos suaves */
+  --brand-100:#e6f8fa;   /* fondos muy claros */
+
+  /* Alias prácticos */
+  --brand-main: var(--brand-600);
+  --brand-dark: var(--brand-700);
+  --brand-light: var(--brand-500);
+
+  /* Encabezados de tabla */
+  --thead-bg: var(--brand-main);
+  --thead-fg: #ffffff;
+
+  /* Escala de grises / texto */
+  --ink-900:#0f172a;
+  --ink-700:#344054;
+  --ink-500:#667085;
+  --ink-300:#d0d5dd;
+  --ink-100:#f9fafb;
+
+  /* UI / Cards */
+  --line:#e7eef7;
+  --card:#ffffff;
+
+  /* Chips */
+  --chip-bg:#eef6ff;
+  --chip-border:#cfe3ff;
+
+  /* Estados */
+  --success:#2e7d32;
+  --warning:#ff9800;
+  --info:#00acc1;
+  --danger:#e53935;
+
+  /* Focus accesible */
+  --focus:rgba(0,136,170,.35);
+}
+
+/* =========================================================
+   BOTONES DE ACCIÓN
+   ========================================================= */
+.btn-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:34px;
+  height:34px;
+  border-radius:8px;
+  border:none;
+  font-size:16px;
+  cursor:pointer;
+  transition:all .2s ease-in-out;
+  color:#fff;
+}
+.btn-icon i{ pointer-events:none; }
+.btn-icon:focus{ outline:none; box-shadow:0 0 0 .15rem rgba(13,110,253,.25); }
+
+.btn-view{ background:#0d6efd; }
+.btn-view:hover{ background:#0b5ed7; transform:scale(1.05); }
+
+.btn-edit{ background:#fd7e14; }
+.btn-edit:hover{ background:#e96b0b; transform:scale(1.05); }
+
+.btn-del{ background:#dc3545; }
+.btn-del:hover{ background:#bb2d3b; transform:scale(1.05); }
+
+/* =========================================================
+   TABLA
+   ========================================================= */
+.table-fixed{ table-layout:fixed; }
+
+.table-sm td,
+.table-sm th{
+  padding:.45rem .5rem;
+  font-size:.875rem;
+  vertical-align:middle;
+}
+
+.table.table-clean> :not(caption)>*>*{ border-color:#e9ecef; }
+.table-striped>tbody>tr:nth-of-type(odd){ --bs-table-accent-bg:rgba(0,0,0,.015); }
+
+.nowrap,
+.col-fecha,
+.col-prog,
+.col-num,
+.col-acciones{ white-space:nowrap; }
+
+.col-pac      { width:70px;  text-align:center; }
+.col-objeto   { width:120px; }
+.col-desc     { width:auto; }
+.col-proceso  { width:170px; }
+.col-num      { width:120px; }
+.col-pct      { width:70px;  text-align:center; }
+.col-badge    { width:110px; }
+.col-prog     { width:56px;  text-align:center; }
+.col-fecha    { width:110px; }
+.col-acciones { width:132px; text-align:center; }
+
+/* Badges */
+.badge{ font-weight:600; }
+.badge-s{ font-size:.75rem; padding:.35em .5em; }
+
+.badge-rutinario   { background:var(--success); }
+.badge-critico     { background:var(--warning); color:#111; }
+.badge-operacional { background:var(--info); color:#111; }
+.badge-estrategico { background:var(--danger); }
+
+/* =========================================================
+   ENCABEZADO DE TABLA (forzado al mismo color que la barra superior)
+   ========================================================= */
+table.table-fixed > thead.table-header,
+table.table-fixed > thead.table-header tr,
+table.table-fixed > thead.table-header th{
+  --bs-table-bg: var(--thead-bg) !important;
+  --bs-table-color: var(--thead-fg) !important;
+  background-color: var(--thead-bg) !important;
+  background-image: none !important;
+  color: var(--thead-fg) !important;
+  border-top: 0 !important;
+  border-bottom:1px solid rgba(0,0,0,.08) !important;
+  font-weight:700;
+  letter-spacing:.2px;
+  text-align:center;
+}
+.table.table-fixed thead.table-header th a,
+.table.table-fixed thead.table-header th i{ color: inherit !important; }
+
+/* =========================================================
+   BARRA SUPERIOR
+   ========================================================= */
+.page-bar{
+  background: var(--brand-main);
+  color:#fff;
+  border-radius:.5rem;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
+  border:1px solid rgba(255,255,255,.15);
+  margin-bottom:.75rem;
+  padding:.5rem 1rem;
+}
+.page-bar .btn{ border-color:rgba(255,255,255,.55)!important; color:#fff; }
+.page-bar .btn:hover{ background:rgba(255,255,255,.12); }
+
+/* Chips */
+.chip{
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  padding:.4rem .65rem;
+  border-radius:999px;
+  font-weight:600;
+  font-size:.85rem;
+  line-height:1;
+  height:38px;
+  border:1px solid transparent;
+}
+.chip-ghost{ background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.22); color:#fff; }
+.chip-soft{ background:#f3fbff; border-color:#d9f1f7; color:#0b3d91; }
+
+/* =========================================================
+   FORM / FILTROS
+   ========================================================= */
+form.card{
+  border:1px solid var(--line);
+  border-radius:.9rem;
+  box-shadow:0 1px 3px rgba(16,24,40,.08);
+}
+@media (min-width: 768px){
+  .filters-sticky{
+    position:sticky; top:56px; z-index:1030;
+    background:var(--card);
+    border-bottom:1px solid var(--line);
+  }
+}
+form .form-select, form .form-control, form .btn{ min-height:38px; }
+form .form-control:focus, form .form-select:focus, .btn:focus{
+  box-shadow:0 0 0 .2rem var(--focus) !important; outline:0;
+}
+
+/* =========================================================
+   BOTONES PRINCIPALES
+   ========================================================= */
+.btn-primary{ background:var(--brand-main); border-color:var(--brand-main); }
+.btn-primary:hover{ background:var(--brand-dark); border-color:var(--brand-dark); }
+
+/* ===== Barra superior (UE + título) ===== */
+.page-head{
+  background:#e9f4ff;                    /* fondo claro */
+  border:1px solid #cfe6ff;              /* borde suave */
+  border-radius:10px;
+  padding:.75rem 1rem;
+  margin-bottom:1rem;
+}
+.page-head .subtitle{ color:#6c757d; font-size:.85rem; }
+
+/* ===== Card de filtros mejorada ===== */
+.filters-card{
+  border:1px solid #e1e7ef;
+  border-left:4px solid #2a9fd6;         /* acento */
+}
+
+/* Chips de resumen en la fila de filtros */
+.chip{
+  display:inline-block;
+  padding:.35rem .6rem;
+  border-radius:999px;
+  font-weight:600;
+  font-size:.85rem;
+  border:1px solid transparent;
+}
+.chip-info{
+  background:#eef7ff;
+  color:#0b5ed7;
+  border-color:#cfe2ff;
+}
+.chip-money{
+  background:#eefaf3;
+  color:#198754;
+  border-color:#cfead9;
+}
+
+/* Botones de la fila compactos en pantallas chicas */
+@media (max-width: 768px){
+  .filters-actions .btn{ width:100%; }
+}
+
+.site-footer{
+  background: var(--brand-900, #006f87);
+  color:#fff;
+  border-top:1px solid rgba(255,255,255,.15);
+  box-shadow:0 -2px 6px rgba(0,0,0,.06);
+  text-align:center;
+  font-size:.85rem;
+}
+
+/* ===== Paginación mejorada (más grande y legible) ===== */
+.table-pagination{
+  padding: 1rem 0 1.25rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Chips de estadística: "Mostrando X–Y de Z" */
+.page-stats{
+  font-size:.9rem;
+  color: var(--ink-700, #344054);
+  background:#f6fbfd;
+  border:1px solid var(--chip-border,#cfe3ff);
+  border-radius:999px;
+  padding:.35rem .75rem;
+}
+
+/* Paginación “pills” moderna */
+.pagination-modern .page-link{
+  min-width:40px;
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:.5rem .85rem;
+  border-radius:999px;
+  font-weight:600;
+  border:1px solid var(--brand-main,#0088aa);
+  color: var(--brand-main,#0088aa);
+  transition: all .15s ease;
+}
+.pagination-modern .page-link:focus{
+  box-shadow:0 0 0 .2rem var(--focus, rgba(0,136,170,.35));
+  outline:0;
+}
+.pagination-modern .page-link:hover{
+  background: var(--brand-light,#00aacc);
+  color:#fff;
+  border-color: var(--brand-light,#00aacc);
+  transform: translateY(-1px);
+}
+.pagination-modern .page-item.active .page-link{
+  background: var(--brand-main,#0088aa);
+  color:#fff;
+  border-color: var(--brand-main,#0088aa);
+  box-shadow:0 6px 14px rgba(0,136,170,.18);
+}
+.pagination-modern .page-item.disabled .page-link{
+  opacity:.45;
+  border-color:#cfd8dc;
+  color:#94a3b8;
+}
+
+/* Un pelín más pequeño en móviles */
+@media (max-width: 576px){
+  .pagination-modern .page-link{
+    min-width:36px; height:36px; padding:.4rem .7rem;
+  }
+}
+
+/* ===== Modal moderno ===== */
+.modal-modern .modal-header{
+  background: linear-gradient(135deg, #0d6efd, #6ea8fe);
+  color:#fff;
+  border-bottom: none;
+}
+.modal-modern .modal-title{font-weight:600;letter-spacing:.2px}
+
+.kv small{
+  display:block;
+  font-size:.75rem;
+  color:#6c757d;
+  margin-bottom:.25rem;
+}
+.kv .kv-v{
+  font-weight:600;
+  font-size:1rem;
+}
+
+.kpi{
+  background:#f8f9fa;
+  border:1px solid #eef2f5;
+  border-radius:14px;
+  padding:.75rem .9rem;
+  height:100%;
+}
+.kpi .kpi-label{
+  font-size:.75rem;
+  color:#667085;
+  margin-bottom:.1rem;
+}
+.kpi .kpi-value{
+  font-size:1rem;
+  font-weight:700;
+}
+
+.kpi .kpi-badge{
+  background:#e9f5ff;
+  color:#0b5ed7;
+  border:1px solid #d0e8ff;
+}
+
+.table-modern td{
+  padding:.7rem .9rem;
+  border-color:#f1f3f5 !important;
+}
+.table-modern tr:hover td{
+  background:#fbfdff;
+}
+
+.modal-modern .modal-footer{
+  border-top:1px solid #eef2f5;
+}
+/* ====== Interior bonito del modal ====== */
+
+/* Contenedor “tarjeta blanca” */
+.modal-modern .body-wrap{
+  padding: 1.25rem 1.25rem 1rem;
+}
+@media (min-width: 768px){
+  .modal-modern .body-wrap{ padding: 1.5rem 1.75rem 1.25rem; }
+}
+
+/* Bloque key/value compacto */
+.modal-modern .kv small{
+  display:block; font-size:.72rem; color:#7a8797; margin-bottom:.15rem;
+  text-transform: none; letter-spacing:.2px;
+}
+.modal-modern .kv .kv-v{
+  font-weight:600; font-size:1rem; color:#1f2937;
+}
+
+/* Caja de descripción */
+.modal-modern .desc-box{
+  background: #f8fbff;
+  border: 1px dashed #cfe2ff;
+  border-radius: 12px;
+  padding: .75rem .9rem;
+  line-height: 1.35;
+  color:#374151;
+}
+
+/* ===== KPIs (pequeñas tarjetas) ===== */
+.kpi{
+  position: relative;
+  background:#ffffff;
+  border:1px solid #eef2f5;
+  border-radius: 14px;
+  padding:.7rem .9rem;
+  box-shadow: 0 1px 0 rgba(16,24,40,.02);
+  height:100%;
+}
+.kpi:before{
+  content:""; position:absolute; inset:auto auto 0 .9rem; height:3px; width:40px;
+  border-radius: 3px; background:#0d6efd20;
+}
+.kpi .kpi-label{ font-size:.72rem; color:#6b7280; margin-bottom:.15rem; }
+.kpi .kpi-value{ font-size:1rem; font-weight:700; color:#111827; }
+
+/* Chips suaves para categorías/resultado */
+.badge-soft{ --bd: #e5e7eb; --fg:#111827; --bg:#f9fafb;
+  border:1px solid var(--bd); background: var(--bg); color: var(--fg);
+  padding:.25rem .55rem; font-weight:600;
+}
+.badge-soft-success{ --bg:#ecfdf5; --bd:#a7f3d0; --fg:#065f46; }
+.badge-soft-warning{ --bg:#fff7ed; --bd:#fed7aa; --fg:#92400e; }
+.badge-soft-info   { --bg:#eff6ff; --bd:#bfdbfe; --fg:#1e40af; }
+.badge-soft-danger { --bg:#fef2f2; --bd:#fecaca; --fg:#991b1b; }
+.badge-soft-neutral{}
+
+/* ===== Tarjeta de ítems ===== */
+.table-modern td{
+  padding:.65rem .9rem; vertical-align:middle;
+  border-bottom: 1px dashed #eef2f7 !important;
+}
+.table-modern tr:last-child td{ border-bottom: none !important; }
+.table-modern td:first-child{ font-weight:500; color:#111827; }
+.table-modern td.text-end{ font-variant-numeric: tabular-nums; }
+
+/* Header “Ítems” */
+.items-card{ border-radius:14px; overflow:hidden; border:1px solid #eef2f5; }
+.items-card .card-header{
+  border-bottom:1px solid #eef2f5; background:#fff; font-weight:600;
+}
+
+/* Encabezado del modal en tono corporativo */
+.modal-modern .modal-header {
+  background: linear-gradient(180deg, #0099bb 0%, #007f9e 100%);
+  color: #fff;
+}
+
+
+/* ===== Diferenciación clara entre títulos y valores ===== */
+
+/* Títulos / etiquetas (N° PAC, Objeto, % del PAC, etc.) */
+.modal-modern .kv small,
+.modal-modern .kpi .kpi-label,
+.modal-modern .items-card .card-header strong,
+.modal-modern .items-card .card-header .text-muted {
+  color: #495057 !important;   /* gris medio */
+  font-weight: 600;            /* seminegrita */
+  font-size: .85rem;
+  letter-spacing: .01em;
+  text-transform: uppercase;   /* opcional: hace aún más clara la diferencia */
+}
+
+/* Valores generales (números, texto, fechas, etc.) */
+.modal-modern .kv .kv-v,
+.modal-modern .kpi-value {
+  color: #6c757d !important;   /* gris más claro */
+  font-weight: 500;            /* más liviano que el título */
+  font-size: .95rem;
+}
+
+/* Valores que son montos (más relevantes) */
+.modal-modern .table-modern td:last-child,
+.modal-modern .kpi-value#ver-cuantia,
+.modal-modern .kpi-value#ver-suma-items {
+  color: #495057 !important;   /* mismo gris que títulos, para que resalten */
+  font-weight: 600;            /* más fuerte */
+}
+
+/* === SOFT SKIN – suaviza valores, ítems y cajas del modal === */
+
+/* Etiquetas (N° PAC, Objeto, % del PAC, etc.) */
+.modal-modern .kv small,
+.modal-modern .kpi .kpi-label,
+.modal-modern .items-card .card-header strong,
+.modal-modern .items-card .card-header .text-muted{
+  color:#6b7280 !important;   /* gris medio suave */
+  font-weight:600;
+  font-size:.74rem;           /* un poco más pequeño */
+  letter-spacing:0;           /* sin separación extra */
+  text-transform:none;        /* NO mayúsculas */
+}
+
+/* Valores (números, texto y fechas) – MÁS CLAROS */
+.modal-modern .kv .kv-v{
+  color:#8b95a5 !important;   /* gris claro, nada tosco */
+  font-weight:500;
+  font-size:.92rem;           /* un pelín menor para bajar contraste */
+}
+
+/* KPIs */
+.modal-modern .kpi .kpi-value{
+  color:#596273 !important;   /* gris medio nítido */
+  font-weight:600;
+}
+.modal-modern .kpi .kpi-label{
+  color:#7a8696 !important;   /* etiqueta más tenue */
+  font-weight:500;
+}
+
+/* Ítems: texto de las filas más suave */
+.modal-modern .table-modern td{
+  color:#6b7280 !important;   /* gris medio suave */
+  font-weight:500;
+  font-size:.92rem;
+}
+
+/* Montos (última columna) un poco más marcados pero sin ser negros */
+.modal-modern .table-modern td:last-child{
+  color:#5b6574 !important;
+  font-weight:600;
+}
+
+/* Caja de descripción – fondo y borde más sutiles */
+.modal-modern .desc-box{
+  background:#fbfdff;         /* casi blanco */
+  border:1px solid #e6eef7;   /* borde muy suave */
+  color:#5b6574;              /* texto gris medio */
+}
+
+/* Encabezado “Ítems” con fondo muy claro */
+.modal-modern .items-card .card-header{
+  background:#f8fafc;
+  color:#5b6574;
+  border-bottom:1px solid #eef2f7;
+}
+
+/* Líneas de la tabla ultra suaves */
+.modal-modern .table-modern td{
+  border-bottom:1px dashed #eef2f7 !important;
+}
+.modal-modern .table-modern tr:last-child td{
+  border-bottom:none !important;
+}
+
+
+/* ESTILO BOTON ITEMS */
+.btn-items {
+  background: #17a2b8;   /* turquesa */
+  color: #fff;
+}
+.btn-items:hover {
+  background: #138496;   /* turquesa más oscuro */
+  transform: scale(1.05);
+}
+
+/* numerador del ítem, igual que en Editar */
+.item-no{min-width:82px;font-weight:600}
+
+
+
+
+/* Botón PDF (ANEXO 01) */
+/* Botón PDF (ANEXO 01) */
+.btn-pdf{
+  background:#0a9e79 !important;   /* tu verde elegante */
+  color:#fff !important;
+}
+
+.btn-pdf:hover{
+  background:#0c7d5f !important;   /* mismo tono más oscuro */
+  transform:scale(1.07);
+}
+

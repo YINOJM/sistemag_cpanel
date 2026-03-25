@@ -1,0 +1,54 @@
+# 1. BLOQUEAR LISTADO DE DIRECTORIOS
+
+Options -Indexes
+
+
+
+# 2. CONFIGURACIÓN DEL MOTOR DE REESCRITURA
+
+RewriteEngine On
+
+
+
+# 3. FORZAR HTTPS (SEGURIDAD SSL)
+
+RewriteCond %{HTTPS} off
+
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+
+
+# 4. REDIRECCIÓN DE ERRORES (ELIMINAR BUCLES)
+
+# Si no es un archivo físico...
+
+RewriteCond %{REQUEST_FILENAME} !-f
+
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Y no estamos ya dentro de la carpeta login...
+
+RewriteCond %{REQUEST_URI} !^/vista/login/
+
+# Mándalo al index de la raíz que ahora tiene ruta absoluta
+
+RewriteRule ^ index.php [L]
+
+
+
+# 5. PROTECCIÓN DE ARCHIVOS SENSIBLES
+
+<FilesMatch "^\.htaccess|config\.php|php_error\.log">
+
+    Order allow,deny
+
+    Deny from all
+
+</FilesMatch>
+
+
+
+# 6. CHARSET UTF-8
+
+AddDefaultCharset UTF-8
+
