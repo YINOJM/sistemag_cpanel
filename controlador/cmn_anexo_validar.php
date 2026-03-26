@@ -5,18 +5,23 @@ require_once __DIR__ . '/../modelo/conexion.php';
 
 header('Content-Type: application/json');
 
-if (empty($_SESSION['id']) || $_SESSION['rol'] !== 'Super Administrador') {
+if (empty($_SESSION['id']) || !userCan('cmn')) {
     echo json_encode(['success' => false, 'message' => 'No autorizado']);
     exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
     $id = (int) $_POST['id'];
+    $fase = isset($_POST['fase']) ? (int)$_POST['fase'] : 1;
+    
+    $tabla = "cmn_anexos_fase1";
+    if ($fase === 2) $tabla = "cmn_anexos_fase2";
+    if ($fase === 3) $tabla = "cmn_anexos_fase3";
 
-    $sql = "UPDATE cmn_anexos_fase1 SET estado_revision = 1 WHERE id = $id";
+    $sql = "UPDATE $tabla SET estado_revision = 1, fecha_revision = NOW() WHERE id = $id";
     
     if ($conexion->query($sql)) {
-        echo json_encode(['success' => true, 'message' => 'Documento validado exitosamente']);
+        echo json_encode(['success' => true, 'message' => "Documento de Fase $fase validado exitosamente"]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Error al actualizar la base de datos']);
     }

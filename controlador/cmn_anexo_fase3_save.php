@@ -30,8 +30,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $nombres_completos = $responsable['nombres'] . " " . $responsable['apellidos'];
     if (empty($region_policial)) $region_policial = $responsable['region_policial'];
-    if (empty($divopus)) $divopus = $responsable['divpol_divopus'];
+    if (empty($divopus)) $divopus = $responsable['divopus'] ?? $responsable['divpol_divopus'];
     if (empty($sub_unidad)) $sub_unidad = $responsable['sub_unidad'];
+
+    // =========================================================================
+    // REGLA DE UNICIDAD PRO: Evitar duplicados por Sub Unidad en Fase 3
+    // =========================================================================
+    $duplicado = $conexion->prepare("SELECT id FROM cmn_anexos_fase3 WHERE TRIM(sub_unidad) = ? AND estado_revision != 2 LIMIT 1");
+    $sub_trimmed = trim($sub_unidad);
+    $duplicado->bind_param("s", $sub_trimmed);
+    $duplicado->execute();
+    if ($duplicado->get_result()->num_rows > 0) {
+        $duplicado->close();
+        $_SESSION['msg_status'] = "error";
+        $_SESSION['msg_texto'] = "AVISO: Su Sub Unidad (". $sub_trimmed .") ya cuenta con una Consolidación Final remitida. Si requiere enviarla nuevamente, contacte con la Oficina de Programación.";
+        header("Location: ../vista/cmn_consolidacion_subir.php");
+        exit();
+    }
+    $duplicado->close();
 
     // Manejo de Archivo PDF
     if (isset($_FILES['anexo_pdf']) && $_FILES['anexo_pdf']['error'] === UPLOAD_ERR_OK) {

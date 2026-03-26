@@ -33,6 +33,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($divopus)) $divopus = $responsable['divpol_divopus'];
     if (empty($sub_unidad)) $sub_unidad = $responsable['sub_unidad'];
 
+    // =========================================================================
+    // REGLA DE UNICIDAD PRO: Evitar duplicados por Sub Unidad en Fase 2
+    // =========================================================================
+    $duplicado = $conexion->prepare("SELECT id FROM cmn_anexos_fase2 WHERE TRIM(sub_unidad) = ? AND estado_revision != 2 LIMIT 1");
+    $sub_trimmed = trim($sub_unidad);
+    $duplicado->bind_param("s", $sub_trimmed);
+    $duplicado->execute();
+    if ($duplicado->get_result()->num_rows > 0) {
+        $duplicado->close();
+        $_SESSION['msg_status'] = "error";
+        $_SESSION['msg_texto'] = "ERROR: Su Sub Unidad (". $sub_trimmed .") ya cuenta con un Anexo N° 02 remitido. Si necesita rectificar, contacte con la Oficina de Programación.";
+        header("Location: ../vista/cmn_clasificacion_subir.php");
+        exit();
+    }
+    $duplicado->close();
+
     // Manejo de Archivo PDF
     if (isset($_FILES['anexo_pdf']) && $_FILES['anexo_pdf']['error'] === UPLOAD_ERR_OK) {
         $file_tmp = $_FILES['anexo_pdf']['tmp_name'];

@@ -8,9 +8,10 @@ if (empty($_SESSION['id']) || !userCan('cmn')) {
 }
 
 $titulo_pagina = "CMN - Fase de Identificación";
-$anio = isset($_GET['anio']) ? (int) $_GET['anio'] : 2026;
+$anio_actual = defined('ANIO_CMN') ? ANIO_CMN : (int)date('Y');
+$anio = isset($_GET['anio']) ? (int) $_GET['anio'] : $anio_actual;
 
-// 1. Estadísticas Sincronizadas (Filtrando solo los que remitieron documento en 2026)
+// 1. Estadísticas Sincronizadas (Filtrando solo los que remitieron documento en el año seleccionado)
 $sql_stats = "SELECT 
     (SELECT COUNT(*) FROM cmn_responsables WHERE archivo_pdf IS NOT NULL AND anio_proceso = $anio) as total_unidades,
     (SELECT COUNT(DISTINCT sub_unidad_especifica) FROM cmn_responsables WHERE archivo_pdf IS NOT NULL AND anio_proceso = $anio) as completados_sync,
@@ -71,6 +72,7 @@ if (!$res_tabla) {
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
         :root {
             --primary-color: #008eb0;      /* Mejor ajustado a la imagen (teal) */
@@ -448,8 +450,8 @@ if (!$res_tabla) {
             <!-- Encabezado y Estadísticas Unificadas Nivel Pro -->
             <div class="row align-items-center mb-3">
                 <div class="col-md-7">
-                    <h2 class="fw-bold mb-0" style="color: #0d2a4a; font-size: 1.8rem;">
-                        <i class="fa-solid fa-file-shield text-primary me-2"></i> Fase de Identificación N° 01
+                    <h2 class="fw-semibold mb-0" style="color: #1e293b; font-size: 1.7rem; letter-spacing: -0.5px;">
+                        <i class="fa-solid fa-file-shield me-2" style="color: #2563eb; font-size: 1.5rem;"></i> (i) Fase de Identificación
                         <span class="badge rounded-pill bg-danger animate__animated animate__pulse animate__infinite ms-2" style="font-size: 0.6rem; vertical-align: middle; background: #dc3545 !important;">
                             <i class="fa-solid fa-satellite-dish me-1"></i> EN VIVO
                         </span>
@@ -464,10 +466,10 @@ if (!$res_tabla) {
                         <i class="fa-solid fa-plus me-2"></i> Nuevo Registro
                     </a>
                     <div class="d-flex gap-2 border-start ps-3 ms-2 align-items-center">
-                        <button class="btn btn-export-pro bg-excel" title="Exportar a Excel">
+                        <button class="btn btn-export-pro bg-excel" title="Exportar a Excel" onclick="exportarExcel(1)">
                             <i class="fa-solid fa-file-excel"></i> EXCEL
                         </button>
-                        <button class="btn btn-export-pro bg-pdf" title="Exportar a PDF">
+                        <button class="btn btn-export-pro bg-pdf" title="Exportar a PDF" onclick="exportarPDF(1)">
                             <i class="fa-solid fa-file-pdf"></i> REPORTE PDF
                         </button>
                     </div>
@@ -520,8 +522,9 @@ if (!$res_tabla) {
                     <div class="col-md-2">
                         <label class="filter-label">Periodo</label>
                         <select name="anio" class="form-select form-select-sm rounded-2 border-light shadow-none bg-light" onchange="this.form.submit()">
-                            <option value="2027" <?= $anio == 2027 ? 'selected' : '' ?>>2027</option>
-                            <option value="2026" <?= $anio == 2026 ? 'selected' : '' ?>>2026</option>
+                            <?php for($y = $anio_actual; $y >= 2025; $y--): ?>
+                                <option value="<?= $y ?>" <?= $anio == $y ? 'selected' : '' ?>><?= $y ?></option>
+                            <?php endfor; ?>
                         </select>
                     </div>
                     <div class="col-md-3">
@@ -606,8 +609,8 @@ if (!$res_tabla) {
                             ?>
                             <tr class="<?= $clase_row ?>">
                                 <td class="text-center text-muted" style="font-size:0.75rem"><?= $n++ ?></td>
-                                <td style="font-size:0.78rem; white-space:nowrap; color:#1e293b; font-weight:500"><?= htmlspecialchars($row['grado']) ?></td>
-                                <td style="font-size:0.8rem; text-transform:uppercase; color:#0f172a; font-weight:600"><?= htmlspecialchars($row['nombres_completos']) ?></td>
+                                <td style="font-size:0.78rem; white-space:nowrap; color:#1e293b; font-weight:400"><?= htmlspecialchars($row['grado']) ?></td>
+                                <td style="font-size:0.8rem; text-transform:uppercase; color:#0f172a; font-weight:500"><?= htmlspecialchars($row['nombres_completos']) ?></td>
                                 <td class="text-center" style="font-size:0.8rem; white-space:nowrap; color:#1e293b"><?= $row['dni'] ?></td>
                                 <td class="text-center" style="font-size:0.8rem; white-space:nowrap; color:#1e293b"><?= $row['cip'] ?></td>
                                 <td style="font-size:0.72rem; white-space:nowrap; color:#334155"><?= htmlspecialchars($row['region_policial']) ?></td>
@@ -618,7 +621,7 @@ if (!$res_tabla) {
                                 <!-- COLUMNA REGISTRO (fecha + badge) -->
                                 <td class="text-center" style="min-width:90px">
                                     <?php if ($tiene_anexo): ?>
-                                        <div class="small fw-bold mb-1" style="font-size:0.72rem"><?= date('d/m/Y', strtotime($row['fecha_subida'])) ?></div>
+                                        <div class="small mb-1" style="font-size:0.72rem"><?= date('d/m/Y', strtotime($row['fecha_subida'])) ?></div>
                                         <?php if ($estado_rev === 1): ?>
                                             <span class="badge-estado badge-validado">&#10003; VALIDADO</span>
                                         <?php elseif ($estado_rev === 2): ?>
@@ -903,31 +906,17 @@ function observarWhatsApp(celular, nombre, id, grado) {
         function toggleFormStatus(newState) {
             const statusText = newState === 1 ? 'CERRAR la recepción de documentos' : 'ABRIR la recepción de documentos';
             const statusIcon = newState === 1 ? 'warning' : 'success';
-
+            const statusText = newState === 1 ? 'CERRAR la recepción de Anexos N° 01' : 'ABRIR la recepción de Anexos N° 01';
             Swal.fire({
-                title: '¿Confirmar cambio de estado?',
+                title: '¿Confirmar cambio?',
                 text: `Vas a ${statusText}.`,
-                icon: statusIcon,
+                icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: newState === 1 ? '#d33' : '#3085d6',
-                cancelButtonColor: '#aaa',
-                confirmButtonText: 'SÍ, CONFIRMAR'
+                confirmButtonColor: newState === 1 ? '#dc3545' : '#198754'
             }).then((result) => {
                 if (result.isConfirmed) {
                     const fd = new FormData();
                     fd.append('estado', newState);
-                    fetch('../controlador/cmn_toggle_form.php', {
-                        method: 'POST',
-                        body: fd
-                    }).then(r => r.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Estado actualizado',
-                                text: 'Se ha cambiado el estado de la fase correctamente.',
-                                timer: 1500,
-                                showConfirmButton: false
                             }).then(() => location.reload());
                         } else {
                             Swal.fire('Error', 'Hubo un problema al actualizar el estado.', 'error');
@@ -1051,6 +1040,43 @@ function observarWhatsApp(celular, nombre, id, grado) {
                 });
                 currentPage = 1;
                 applyPagination();
+            });
+        }
+
+        function toggleFormStatus(newState) {
+            const statusText = newState === 1 ? 'CERRAR la recepción de Anexos N° 01' : 'ABRIR la recepción de Anexos N° 01';
+            Swal.fire({
+                title: '¿Confirmar cambio?',
+                text: `Vas a ${statusText}.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: newState === 1 ? '#dc3545' : '#198754'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const fd = new FormData();
+                    fd.append('estado', newState);
+                    fd.append('fase', 1);
+                    fetch('../controlador/cmn_toggle_form.php', { method: 'POST', body: fd })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.status === 'success') location.reload();
+                        });
+                }
+            });
+        }
+
+        function exportarExcel(fase) {
+            window.location.href = `../controlador/cmn_export_excel_fases.php?fase=${fase}&anio=<?= $anio ?>`;
+        }
+
+        function exportarPDF(fase) {
+            window.open(`../controlador/cmn_generar_reporte_pdf_fases.php?fase=${fase}&anio=<?= $anio ?>`, '_blank');
+        }
+
+        function copyPublicLink() {
+            const url = "<?= FULL_BASE_URL ?>vista/cmn_identificacion_subir.php";
+            navigator.clipboard.writeText(url).then(() => {
+                Swal.fire({ icon: 'success', title: '¡Enlace Copiado!', text: 'El enlace público del Anexo 01 ya está en su portapapeles.', timer: 1500, showConfirmButton: false });
             });
         }
 

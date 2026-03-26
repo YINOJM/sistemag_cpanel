@@ -1,11 +1,14 @@
 <?php
 // controlador/cmn_anexo_observar.php
-// Marca el Anexo N°01 como OBSERVADO (estado_revision = 2)
-// Esto habilita al logístico para volver a subir su documento corregido.
 session_start();
 require_once __DIR__ . '/../modelo/conexion.php';
 
 header('Content-Type: application/json');
+
+if (empty($_SESSION['id']) || !userCan('cmn')) {
+    echo json_encode(['success' => false, 'message' => 'No autorizado']);
+    exit();
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Método no permitido.']);
@@ -13,14 +16,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $id = (int)trim($_POST['id'] ?? 0);
+$fase = isset($_POST['fase']) ? (int)$_POST['fase'] : 1;
 
 if ($id <= 0) {
     echo json_encode(['success' => false, 'message' => 'ID de Anexo no válido.']);
     exit;
 }
 
+$tabla = "cmn_anexos_fase1";
+if ($fase === 2) $tabla = "cmn_anexos_fase2";
+if ($fase === 3) $tabla = "cmn_anexos_fase3";
+
 // Solo se puede observar si está en estado RECEPCIONADO (0) — no si ya está VALIDADO (1)
-$stmt = $conexion->prepare("SELECT id, estado_revision FROM cmn_anexos_fase1 WHERE id = ? LIMIT 1");
+$stmt = $conexion->prepare("SELECT id, estado_revision FROM $tabla WHERE id = ? LIMIT 1");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $res = $stmt->get_result();
@@ -37,8 +45,8 @@ if ((int)$anexo['estado_revision'] === 1) {
     exit;
 }
 
-// Marcar como OBSERVADO (estado_revision = 2) y registrar fecha de observación
-$stmt2 = $conexion->prepare("UPDATE cmn_anexos_fase1 SET estado_revision = 2, fecha_revision = NOW() WHERE id = ?");
+// Marcar como OBSERVADO (2)
+$stmt2 = $conexion->prepare("UPDATE $tabla SET estado_revision = 2, fecha_revision = NOW() WHERE id = ?");
 $stmt2->bind_param("i", $id);
 $ok = $stmt2->execute();
 $stmt2->close();

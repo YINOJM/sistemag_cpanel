@@ -19,7 +19,7 @@ $estaCerrado = ($config && $config['valor'] === '1');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subir Anexo N° 01 - CMN 2026 | REGPOL LIMA</title>
+    <title>Subir Anexo N° 01 - CMN <?= ANIO_CMN ?> | REGPOL LIMA</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -30,7 +30,7 @@ $estaCerrado = ($config && $config['valor'] === '1');
         :root {
             --primary-color: #0d2a4a;      /* Azul oscuro premium */
             --secondary-color: #1a3c5f;    /* Tono medio */
-            --accent-color: #c5a059;       /* Oro / Dorado para detalles luxe */
+            --accent-color: #f59e0b;       /* Ámbar para Identificación (Fase 1) */
             --bg-color: #f0f2f5;
             --card-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
         }
@@ -327,7 +327,7 @@ $estaCerrado = ($config && $config['valor'] === '1');
                         <i class="fa-solid fa-upload fa-3x" style="color: rgba(255,255,255,0.8)"></i>
                     </div>
                     <h1 class="h3 fw-bold mb-2">REMISIÓN DE ANEXO N° 01 (FASE IDENTIFICACIÓN)</h1>
-                    <p class="mb-0 opacity-75">SIAF-Web | Cuadro Multianual de Necesidades - CMN 2026</p>
+                    <p class="mb-0 opacity-75">SIAF-Web | Cuadro Multianual de Necesidades - CMN <?= ANIO_CMN ?></p>
                 </div>
 
                 <div class="card-body position-relative">
@@ -347,7 +347,7 @@ $estaCerrado = ($config && $config['valor'] === '1');
                     <div class="info-alert mb-4 d-flex align-items-center <?= $estaCerrado ? 'upload-section-disabled' : '' ?>">
                         <i class="fa-solid fa-circle-info fa-2x me-3 opacity-50"></i>
                         <div>
-                            <strong>Paso Final de la Programación:</strong>
+                            <strong>Paso Inicial de la Programación:</strong>
                             Usted debe subir el <strong>Anexo N° 01: Cuadro Multianual de Necesidades - Fase de Identificación</strong> debidamente <strong>visado por el Jefe de Unidad / Responsable del Área Usuaria</strong> en formato PDF.
                         </div>
                     </div>
@@ -374,6 +374,11 @@ $estaCerrado = ($config && $config['valor'] === '1');
                             </div>
                             
                             <div class="col-12 mt-2">
+                                <div class="readonly-field-group">
+                                    <div class="readonly-label">Cargo / Posición:</div>
+                                    <div class="readonly-value"><i class="fa-solid fa-user-tie"></i> <span id="cargoSpan">---</span></div>
+                                    <input type="hidden" id="cargo" name="cargo">
+                                </div>
                                 <div class="readonly-field-group">
                                     <div class="readonly-label">Región Policial:</div>
                                     <div class="readonly-value"><i class="fa-solid fa-lock"></i> <span id="regionSpan">---</span></div>
@@ -502,7 +507,6 @@ $estaCerrado = ($config && $config['valor'] === '1');
                     .then(data => {
                         Swal.close();
                         if (data.exists) {
-                            // VERIFICAR SI LA SUBUNIDAD YA TIENE ANEXO (Nivel Pro)
                             if (data.has_annex) {
                                 let det = data.annex_details;
                                 Swal.fire({
@@ -524,25 +528,21 @@ $estaCerrado = ($config && $config['valor'] === '1');
                                     confirmButtonText: '✓ ENTENDIDO',
                                     width: 550
                                 });
-                                // BLOQUEAR TODA LA SECCIÓN DE CARGA
                                 document.getElementById('uploadZone').classList.add('upload-section-disabled');
                                 document.getElementById('submitZone').classList.add('upload-section-disabled');
-                                document.getElementById('submitZone').style.pointerEvents = 'none';
-                                document.getElementById('submitZone').style.opacity = '0.5';
                             } else {
-                                // SI TODO ESTÁ BIEN, HABILITAR Y DAR BIENVENIDA
                                 document.getElementById('uploadZone').classList.remove('upload-section-disabled');
                                 document.getElementById('submitZone').classList.remove('upload-section-disabled');
-                                document.getElementById('submitZone').style.pointerEvents = 'auto';
-                                document.getElementById('submitZone').style.opacity = '1';
                                 Swal.fire({ icon: 'success', title: '¡Identificado!', text: 'Ya puede subir su archivo del Anexo N° 01.', timer: 2000, showConfirmButton: false });
                             }
 
                             const fullName = data.data.grado + ' ' + data.data.apellidos + ', ' + data.data.nombres;
-
                             document.getElementById('nombreCompleto').value = fullName;
                             document.getElementById('nombreCompletoSpan').innerHTML = '<i class="fa-solid fa-user-check text-success"></i> <span>' + fullName + '</span>';
                             
+                            document.getElementById('cargo').value = data.data.cargo || '--';
+                            document.getElementById('cargoSpan').innerText = data.data.cargo || '--';
+
                             document.getElementById('regionPolicial').value = data.data.region_policial || '--';
                             document.getElementById('regionSpan').innerText = data.data.region_policial || '--';
                             
@@ -558,7 +558,7 @@ $estaCerrado = ($config && $config['valor'] === '1');
                                 icon: 'info',
                                 title: 'ACCESO NO HABILITADO',
                                 html: `<div class="text-start" style="font-size: 0.9rem;">
-                                        <p>Su DNI <b>${dni}</b> no figura en el Padrón de Responsables Logísticos habilitados para la <b>Fase de Identificación CMN 2026</b>.</p>
+                                        <p>Su DNI <b>${dni}</b> no figura en el Padrón de Responsables Logísticos habilitados para la <b>Fase de Identificación CMN <?= ANIO_CMN ?></b>.</p>
                                         <div class="border-start border-4 border-warning ps-3 py-2 bg-light rounded mb-3">
                                             <p class="mb-1 fw-bold text-dark"><i class="fa-solid fa-phone me-2 text-success"></i>¿Eres responsable logístico de tu unidad?</p>
                                             <p class="mb-0 text-muted" style="font-size: 0.85rem;">Comuníquese con la <b>Oficina de Programación - UE 009 VII DIRTEPOL LIMA</b> para verificar y gestionar su habilitación de acceso, previa confirmación del jefe de su unidad policial.</p>
