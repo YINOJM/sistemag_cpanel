@@ -14,8 +14,8 @@ $anio = isset($_GET['anio']) ? (int) $_GET['anio'] : $anio_actual;
 // 1. Estadísticas Sincronizadas
 $sql_stats = "SELECT 
     (SELECT COUNT(*) FROM cmn_responsables WHERE anio_proceso = $anio AND archivo_pdf IS NOT NULL) as identificados,
-    (SELECT COUNT(*) FROM cmn_anexos_fase2 a INNER JOIN cmn_responsables r ON a.dni_responsable = r.dni WHERE r.anio_proceso = $anio) as recibidos,
-    (SELECT SUM(a.monto_total) FROM cmn_anexos_fase2 a INNER JOIN cmn_responsables r ON a.dni_responsable = r.dni WHERE r.anio_proceso = $anio) as monto_total";
+    (SELECT COUNT(*) FROM cmn_anexos_fase2 a INNER JOIN cmn_responsables r ON a.dni_responsable COLLATE utf8mb4_unicode_ci = r.dni COLLATE utf8mb4_unicode_ci WHERE r.anio_proceso = $anio) as recibidos,
+    (SELECT SUM(a.monto_total) FROM cmn_anexos_fase2 a INNER JOIN cmn_responsables r ON a.dni_responsable COLLATE utf8mb4_unicode_ci = r.dni COLLATE utf8mb4_unicode_ci WHERE r.anio_proceso = $anio) as monto_total";
     
 $res_stats = $conexion->query($sql_stats);
 if (!$res_stats) {
@@ -46,7 +46,7 @@ $sql_tabla = "SELECT
                 r.sub_unidad_especifica as sub_unidad, r.region_policial, r.divpol_divopus as div_frente, r.celular,
                 a.id as anexo_id, a.fecha_subida, a.archivo_pdf as anexo_pdf, a.monto_total, a.estado_revision
               FROM cmn_responsables r 
-              LEFT JOIN cmn_anexos_fase2 a ON r.dni = a.dni_responsable 
+              LEFT JOIN cmn_anexos_fase2 a ON r.dni COLLATE utf8mb4_unicode_ci = a.dni_responsable COLLATE utf8mb4_unicode_ci 
               WHERE r.archivo_pdf IS NOT NULL $where_filtros 
               ORDER BY r.sub_unidad_especifica ASC";
 
